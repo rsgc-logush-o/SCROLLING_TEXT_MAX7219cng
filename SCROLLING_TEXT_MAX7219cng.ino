@@ -1,4 +1,4 @@
-#include <SPI.h>
+
 
 
 byte charToPrint[95][5]
@@ -104,29 +104,162 @@ byte charToPrint[95][5]
 
 byte xShift[numberOfDisplays][8];
 byte yShift[8];
+const int clockPin = 10;
+const int dataPin = 9;
+const int latchPin = 8;
+byte shutDown = 0x0C;
+byte scanLimit = 0x0B;
+byte intensity = 0x0A;
+byte decodeMode = 0x09;
+byte displayTest = 0x0F;
+
 
 void setup() 
 {
-
+ pinMode(clockPin, OUTPUT);
+ pinMode(dataPin, OUTPUT);
+ pinMode(latchPin, OUTPUT);
  for(int i = 1; i < 9; i++)
  {
   yShift[i - 1] = i;
  }
-  SPI.setBitOrder(MSBFIRST);
- SPI.begin();
+ 
 
-  
+  setUpMax();
 
 }
 
 void loop() 
 {
-  // put your main code here, to run repeatedly:
+  
+  scrollText("HELLO WORLD! ", 1000);
 
 }
 
-void writeMax(int column, int row)
+void setUpMax()
 {
+ digitalWrite(latchPin, LOW);
+
+ shiftByte(scanLimit);
+ shiftByte(0x07);
+
+ digitalWrite(latchPin, HIGH);
+
+
  
+
+
+ digitalWrite(latchPin, LOW);
+
+ shiftByte(decodeMode);
+ shiftByte(0x00);
+
+ digitalWrite(latchPin, HIGH);
+
+ digitalWrite(latchPin, LOW);
+
+ shiftByte(shutDown);
+ shiftByte(0x01);
+
+ digitalWrite(latchPin, HIGH);
+
+  digitalWrite(latchPin, LOW);
+ 
+ shiftByte(displayTest);
+ shiftByte(0x00);
+
+ digitalWrite(latchPin, HIGH);
+
+  digitalWrite(latchPin, LOW);
+
+ shiftByte(intensity);
+ shiftByte(0x0F);
+
+ digitalWrite(latchPin, HIGH);
+
+ for(int i = 0; i < 8; i++)
+ {
+  digitalWrite(latchPin, LOW);
+  shiftByte(yShift[i]);
+  shiftByte(0);
+  digitalWrite(latchPin, HIGH);
+ }
 }
+
+void shiftByte(byte byteToShift)
+{
+  
+  for(int i = 7; i > -1; i--)
+  {
+    digitalWrite(clockPin, LOW);
+    byte mask = 1<<i;
+    if(byteToShift & mask)
+    {
+      digitalWrite(dataPin, HIGH);
+    }else
+    {
+      digitalWrite(dataPin, LOW);
+    }
+
+    digitalWrite(clockPin, HIGH);
+    
+  }
+
+  
+}
+
+
+void scrollText(String stringToPrint, int scrollSpeed)
+{
+
+
+
+
+  for (int i = 0; i < stringToPrint.length(); i++)//this is to select each character in the string from the bitmap
+  {
+    for(int l = 0; l < 5; l++)//this is to get the column of each character
+    {
+      for(int h = 0; h > -1; h--)
+      {
+        for (int k = 7; k > -1; k--)//this is to write the column of each character k is what column
+        {
+          if (k == 0 && h == 0)
+          {
+            for (int j = 0; j < 8; j++)
+            {        
+              bitWrite(xShift[h][j], k, bitRead(charToPrint[stringToPrint.charAt(i) - 32][l], j));         
+            }
+          }else if(k == 0 && h != 0)
+          {
+            for (int j = 0; j < 8; j++)
+            {
+              bitWrite(xShift[h][j], k, bitRead(xShift[h-1][j], 7));
+            } 
+           }else
+           {
+              for (int j = 0; j < 8; j++)
+              {
+                bitWrite(xShift[h][j], k, bitRead(xShift[h][j], k-1));
+              }
+              
+           }
+           
+        }
+      }
+      for(int j = 0; j < 8; j++)
+      {
+        digitalWrite(latchPin, LOW);
+      
+        shiftByte(yShift[j]);
+        shiftByte(xShift[0][j]);
+
+        digitalWrite(latchPin, HIGH);
+      }
+      
+      delay(scrollSpeed);
+      }
+      
+    }
+      
+  }
 
