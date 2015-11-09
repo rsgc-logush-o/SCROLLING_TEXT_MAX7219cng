@@ -132,7 +132,28 @@ void setup()
 void loop() 
 {
   
-  scrollText("HELLO WORLD! ", 1000);
+ scrollText("HELLO WORLD", 100);
+
+ 
+//for(int i = 0; i < 5; i ++)
+//{
+//  digitalWrite(latchPin, LOW);
+//
+//  shiftByte(yShift[i]);
+//
+//  shiftByte(charToPrint[1][i]);
+//
+//  digitalWrite(latchPin, HIGH);
+//
+//}
+
+//digitalWrite(latchPin, LOW);
+//
+//  shiftByte(yShift[7]);
+//
+//  shiftByte(255);
+//
+//  digitalWrite(latchPin, HIGH);
 
 }
 
@@ -217,49 +238,86 @@ void scrollText(String stringToPrint, int scrollSpeed)
 
   for (int i = 0; i < stringToPrint.length(); i++)//this is to select each character in the string from the bitmap
   {
-    for(int l = 0; l < 5; l++)//this is to get the column of each character
+   
+    for(int j = 0; j < 5; j++)
     {
-      for(int h = 0; h > -1; h--)
+      for(int l = 0; l < 8; l++)
       {
-        for (int k = 7; k > -1; k--)//this is to write the column of each character k is what column
+        if(l == 7)
         {
-          if (k == 0 && h == 0)
-          {
-            for (int j = 0; j < 8; j++)
-            {        
-              bitWrite(xShift[h][j], k, bitRead(charToPrint[stringToPrint.charAt(i) - 32][l], j));         
-            }
-          }else if(k == 0 && h != 0)
-          {
-            for (int j = 0; j < 8; j++)
-            {
-              bitWrite(xShift[h][j], k, bitRead(xShift[h-1][j], 7));
-            } 
-           }else
-           {
-              for (int j = 0; j < 8; j++)
-              {
-                bitWrite(xShift[h][j], k, bitRead(xShift[h][j], k-1));
-              }
-              
-           }
-           
+          xShift[0][l] = charToPrint[stringToPrint.charAt(i) - 32][j];
+        }else
+        {
+          xShift[0][l] = xShift[0][l+1];
         }
+
       }
-      for(int j = 0; j < 8; j++)
+      for(int k = 0; k < 8; k++)
       {
         digitalWrite(latchPin, LOW);
-      
-        shiftByte(yShift[j]);
-        shiftByte(xShift[0][j]);
+
+        shiftByte(yShift[k]);
+
+        shiftByte(xShift[0][k]);
 
         digitalWrite(latchPin, HIGH);
       }
-      
       delay(scrollSpeed);
-      }
+
+     
       
     }
-      
+
+     for(int l = 0; l < 8; l++)
+      {
+        if(l == 7)
+        {
+          xShift[0][l] = 0;
+        }else
+        {
+          xShift[0][l] = xShift[0][l+1];
+        }
+       
+      }
+
+       for(int k = 0; k < 8; k++)
+      {
+        digitalWrite(latchPin, LOW);
+
+        shiftByte(yShift[k]);
+
+        shiftByte(xShift[0][k]);
+
+        digitalWrite(latchPin, HIGH);
+      }
+
+       delay(scrollSpeed);
   }
 
+  for(int i = 0; i < 8; i ++)
+  {
+    for(int j = 0; j < 8; j++)
+    {
+      if(j == 7)
+      {
+        xShift[0][j] = 0;
+      }else
+      {
+        xShift[0][j] = xShift[0][j+1];
+      }
+    }
+
+     for(int k = 0; k < 8; k++)
+      {
+        digitalWrite(latchPin, LOW);
+
+        shiftByte(yShift[k]);
+
+        shiftByte(xShift[0][k]);
+
+        digitalWrite(latchPin, HIGH);
+      }
+
+       delay(scrollSpeed);
+  }
+}
