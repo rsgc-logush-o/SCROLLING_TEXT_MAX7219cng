@@ -132,34 +132,17 @@ void setup()
 void loop() 
 {
   
- scrollText("HELLO WORLD", 100);
+ scrollText("Hello World!", 75);
 
- 
-//for(int i = 0; i < 5; i ++)
-//{
-//  digitalWrite(latchPin, LOW);
-//
-//  shiftByte(yShift[i]);
-//
-//  shiftByte(charToPrint[1][i]);
-//
-//  digitalWrite(latchPin, HIGH);
-//
-//}
-
-//digitalWrite(latchPin, LOW);
-//
-//  shiftByte(yShift[7]);
-//
-//  shiftByte(255);
-//
-//  digitalWrite(latchPin, HIGH);
 
 }
 
 void setUpMax()
 {
  digitalWrite(latchPin, LOW);
+
+ shiftByte(scanLimit);
+ shiftByte(0x07);
 
  shiftByte(scanLimit);
  shiftByte(0x07);
@@ -174,10 +157,16 @@ void setUpMax()
 
  shiftByte(decodeMode);
  shiftByte(0x00);
+ 
+ shiftByte(decodeMode);
+ shiftByte(0x00);
 
  digitalWrite(latchPin, HIGH);
 
  digitalWrite(latchPin, LOW);
+
+ shiftByte(shutDown);
+ shiftByte(0x01);
 
  shiftByte(shutDown);
  shiftByte(0x01);
@@ -189,9 +178,15 @@ void setUpMax()
  shiftByte(displayTest);
  shiftByte(0x00);
 
+ shiftByte(displayTest);
+ shiftByte(0x00);
+
  digitalWrite(latchPin, HIGH);
 
   digitalWrite(latchPin, LOW);
+
+ shiftByte(intensity);
+ shiftByte(0x0F);
 
  shiftByte(intensity);
  shiftByte(0x0F);
@@ -201,6 +196,8 @@ void setUpMax()
  for(int i = 0; i < 8; i++)
  {
   digitalWrite(latchPin, LOW);
+  shiftByte(yShift[i]);
+  shiftByte(0);
   shiftByte(yShift[i]);
   shiftByte(0);
   digitalWrite(latchPin, HIGH);
@@ -236,7 +233,7 @@ void scrollText(String stringToPrint, int scrollSpeed)
 
 
 
-  for (int i = 0; i < stringToPrint.length(); i++)//this is to select each character in the string from the bitmap
+  for (int i = 0; i < stringToPrint.length(); i++)
   {
    
     for(int j = 0; j < 5; j++)
@@ -329,6 +326,11 @@ void scrollText(String stringToPrint, int scrollSpeed)
 
 void sendToMax(byte byteToSendX, byte byteToSendY, int whichMax )
 {
+  for(int i = 0; i < numberOfDisplays; i++)
+  {
+    shiftByte(0);
+    shiftByte(0);
+  }
   digitalWrite(latchPin, LOW);
 
   shiftByte(byteToSendY);
