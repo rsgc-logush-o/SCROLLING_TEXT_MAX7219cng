@@ -132,7 +132,7 @@ void setup()
 void loop() 
 {
   
- scrollText("Hello World!", 75);
+ scrollText("Hello World", 75);
 
 
 }
