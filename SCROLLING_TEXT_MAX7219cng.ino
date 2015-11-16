@@ -1,7 +1,7 @@
 
 
 
-byte charToPrint[95][5]
+byte charToPrint[95][6]
 {
   {0, 0, 0, 0, 0}, //SPACE
   {95, 0, 0, 0, 0}, //!
@@ -100,7 +100,108 @@ byte charToPrint[95][5]
   {8, 8, 16, 16, 0} //~
 };
 
-# define numberOfDisplays  2
+int charWidth[95]
+{
+  4,//SPACE
+  2,//!
+  3,//"
+  6,//#
+  6,//$
+  6,//%
+  6,//&
+  2,//'
+  3,//(
+  3,//)
+  5,//*
+  6,//+
+  3,//,
+  6,//-
+  2,//.
+  6,///
+  6,//0
+  6,//1
+  6,//2
+  6,//3
+  6,//4
+  6,//5
+  6,//6
+  6,//7
+  6,//8
+  6,//9
+  2,//:
+  3,//;
+  4,//<
+  6,//=
+  4,//>
+  6,//?
+  6,//@
+  6,//A
+  6,//B
+  6,//C
+  6,//D
+  6,//E
+  6,//F
+  6,//G
+  6,//H
+  6,//I
+  6,//J
+  6,//K
+  6,//L
+  6,//M
+  6,//N
+  6,//O
+  6,//P
+  6,//Q
+  6,//R
+  6,//S
+  6,//T
+  6,//U
+  6,//V
+  6,//W
+  6,//X
+  6,//Y
+  6,//Z
+  3,//[
+  6,//\
+  3,//]
+  6,//^
+  6,//_
+  3,//`
+  6,//a
+  6,//b
+  6,//c
+  6,//d
+  6,//e
+  6,//f
+  6,//g
+  6,//h
+  6,//i
+  6,//j
+  6,//k
+  6,//l
+  6,//m
+  6,//n
+  6,//o
+  6,//p
+  6,//q
+  6,//r
+  6,//s
+  6,//t
+  6,//u
+  6,//v
+  6,//w
+  6,//x
+  6,//y
+  6,//z
+  4,//{
+  2,//|
+  4,//}
+  5//~
+  
+  
+};
+
+# define numberOfDisplays  4
 
 byte xShift[numberOfDisplays][8];
 byte yShift[8];
@@ -236,7 +337,7 @@ void scrollText(String stringToPrint, int scrollSpeed)
   for (int i = 0; i < stringToPrint.length(); i++)
   {
    
-    for(int j = 0; j < 5; j++)
+    for(int j = 0; j < charWidth[stringToPrint.charAt(i) - 32]; j++)
     {
       for(int h = numberOfDisplays-1; h > -1; h--)
       {
@@ -267,32 +368,32 @@ void scrollText(String stringToPrint, int scrollSpeed)
      
       
     }
-  for(int j = numberOfDisplays -1; j > -1; j--)
-  {
-     for(int l = 0; l < 8; l++)
-      {
-         if(l == 7 && j == 0)
-      {
-        xShift[j][l] = 0;
-      }else if(l == 7 && j != 0)
-      {
-        xShift[j][l] = xShift[j-1][0];
-      }else
-      {
-        xShift[j][l] = xShift[j][l+1];
-      }
-       
-      }
-  }
-      for(int l = 0; l < numberOfDisplays; l++)
-    {
-     for(int k = 0; k < 8; k++)
-      {
-        sendToMax(xShift[l][k], yShift[k], l);
-      }
-    }
-
-       delay(scrollSpeed);
+//  for(int j = numberOfDisplays -1; j > -1; j--)
+//  {
+//     for(int l = 0; l < 8; l++)
+//      {
+//         if(l == 7 && j == 0)
+//      {
+//        xShift[j][l] = 0;
+//      }else if(l == 7 && j != 0)
+//      {
+//        xShift[j][l] = xShift[j-1][0];
+//      }else
+//      {
+//        xShift[j][l] = xShift[j][l+1];
+//      }
+//       
+//      }
+//  }
+//      for(int l = 0; l < numberOfDisplays; l++)
+//    {
+//     for(int k = 0; k < 8; k++)
+//      {
+//        sendToMax(xShift[l][k], yShift[k], l);
+//      }
+//    }
+//
+//       delay(scrollSpeed);
   }
 
   for(int i = 0; i < 8 * numberOfDisplays; i++)
@@ -343,5 +444,17 @@ void sendToMax(byte byteToSendX, byte byteToSendY, int whichMax )
   }
 
   digitalWrite(latchPin, HIGH);
+}
+
+
+void columnScroll(String stringToPrint, int scrollSpeed)
+{
+  for(int i = 0; i < stringToPrint.length(); i++)
+  {
+    for(int j = 0; j < charWidth[stringToPring.charAt(i)]; j++)
+    {
+      
+    }
+  }
 }
 
