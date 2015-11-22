@@ -1,6 +1,6 @@
 
 
-
+//THESE ARE THE BITMAPS FOR THE CHARACTERS
 byte charToPrint[95][6]
 {
   {0, 0, 0, 0, 0}, //SPACE
@@ -100,6 +100,7 @@ byte charToPrint[95][6]
   {8, 8, 16, 16, 0} //~
 };
 
+//THIS STORES THE WIDTH OF EACH CHARACTER BECAUSE SOME ARE WIDER THAT OTHERS AND THIS WILL ENABLE ME TO ACHIVE PERFECT CHARACTER SPACING
 int charWidth[95]
 {
   4,//SPACE
@@ -201,13 +202,18 @@ int charWidth[95]
   
 };
 
-# define numberOfDisplays  4
+# define numberOfDisplays  4//THIS NUMBER IS THE AMOUNT OF MATRICES
 
-byte xShift[numberOfDisplays][8];
-byte yShift[8];
+
+byte xShift[numberOfDisplays][8];//THIS STORES THE COLUMN VALUES FOR EACH MATRIX
+byte yShift[8];//THIS IS USED WHEN WRITIN THE THE MAX CHIPS TO ADRESS THE PROPER ROWS
+
+//THESE ARE THE PINS THAT INTERACT WITH THE MAX CHIPS
 const int clockPin = 10;
 const int dataPin = 9;
 const int latchPin = 8;
+
+//THESE ARE USED IN THE SETUP TO ADRESS THE REGISTERS FOR THOSE FUNCTIONS
 byte shutDown = 0x0C;
 byte scanLimit = 0x0B;
 byte intensity = 0x0A;
@@ -226,7 +232,7 @@ void setup()
  }
  
 
-  setUpMax();
+  setUpMax();//THE FUNCTION TO SET UP THE MATRICES
 
 }
 
@@ -238,74 +244,72 @@ void loop()
 
 }
 
-void setUpMax()
+void setUpMax()//THIS SETS UP THE MAX CHIPS
 {
+  //SETS THE SCAN RATE OF THE MAX'S
  digitalWrite(latchPin, LOW);
-
+for(int i = 0; i < numberOfDisplays; i++)
+{
  shiftByte(scanLimit);
  shiftByte(0x07);
-
- shiftByte(scanLimit);
- shiftByte(0x07);
-
+}
  digitalWrite(latchPin, HIGH);
 
 
  
 
-
+//SETS THERE TO BE NO DECODE MODE THAT IS MEANT FOR DRIVING 7 SEGMENT DISPLAYS
  digitalWrite(latchPin, LOW);
-
+for(int i = 0; i < numberOfDisplays; i++)
+{
  shiftByte(decodeMode);
  shiftByte(0x00);
- 
- shiftByte(decodeMode);
- shiftByte(0x00);
-
+}
  digitalWrite(latchPin, HIGH);
 
+//TAKING THE MAX'S OUT OF SHUTDOWN MODE
  digitalWrite(latchPin, LOW);
-
+for(int i = 0; i < numberOfDisplays; i++)
+{
  shiftByte(shutDown);
  shiftByte(0x01);
-
- shiftByte(shutDown);
- shiftByte(0x01);
-
+}
  digitalWrite(latchPin, HIGH);
 
+  //SETTING THE DISPLAY TEST TO NONE ALL THIS DOES IS LIGHT UP ALL OF THE LEDS
   digitalWrite(latchPin, LOW);
- 
+ for(int i = 0; i < numberOfDisplays; i++)
+ {
  shiftByte(displayTest);
  shiftByte(0x00);
-
- shiftByte(displayTest);
- shiftByte(0x00);
-
+ }
  digitalWrite(latchPin, HIGH);
 
+
+//THIS SETS THE INTENSITY OF THE LEDS BRIGHTNESS
   digitalWrite(latchPin, LOW);
-
+for(int i = 0; i < numberOfDisplays; i++)
+{
  shiftByte(intensity);
  shiftByte(0x0F);
-
- shiftByte(intensity);
- shiftByte(0x0F);
-
+}
  digitalWrite(latchPin, HIGH);
 
+
+//THIS CLEARS ALL OF THE DISPLAYS
  for(int i = 0; i < 8; i++)
  {
   digitalWrite(latchPin, LOW);
+  for(int j = 0; j < numberOfDisplays; j++)
+  {
   shiftByte(yShift[i]);
   shiftByte(0);
-  shiftByte(yShift[i]);
-  shiftByte(0);
+  }
   digitalWrite(latchPin, HIGH);
  }
 }
 
-void shiftByte(byte byteToShift)
+void shiftByte(byte byteToShift)//THIS FUNCTION SHIFTS OUT BYTES TO THE MAX'S
 {
   
   for(int i = 7; i > -1; i--)
@@ -368,32 +372,7 @@ void scrollText(String stringToPrint, int scrollSpeed)
      
       
     }
-//  for(int j = numberOfDisplays -1; j > -1; j--)
-//  {
-//     for(int l = 0; l < 8; l++)
-//      {
-//         if(l == 7 && j == 0)
-//      {
-//        xShift[j][l] = 0;
-//      }else if(l == 7 && j != 0)
-//      {
-//        xShift[j][l] = xShift[j-1][0];
-//      }else
-//      {
-//        xShift[j][l] = xShift[j][l+1];
-//      }
-//       
-//      }
-//  }
-//      for(int l = 0; l < numberOfDisplays; l++)
-//    {
-//     for(int k = 0; k < 8; k++)
-//      {
-//        sendToMax(xShift[l][k], yShift[k], l);
-//      }
-//    }
-//
-//       delay(scrollSpeed);
+
   }
 
   for(int i = 0; i < 8 * numberOfDisplays; i++)
@@ -425,18 +404,20 @@ void scrollText(String stringToPrint, int scrollSpeed)
   }
 }
 
-void sendToMax(byte byteToSendX, byte byteToSendY, int whichMax )
+void sendToMax(byte byteToSendX, byte byteToSendY, int whichMax )//THIS SENDS BYTES TO THE MAX WITH THE PARAMETERS OF WHICH CHIP TO SEND IT TO WHICH ROW AND THE VALUE OF THE COLUMN THAT YOU ARE SENDING
 {
+  //THIS CLEARS THE REGISTERS OTHERWISE THE PREVIOUS BITS THAT WERE SHIFTED WOULD BE SHIFTED OVER
   for(int i = 0; i < numberOfDisplays; i++)
   {
     shiftByte(0);
     shiftByte(0);
   }
   digitalWrite(latchPin, LOW);
-
+//THIS SENDS THE COLUMN VALUE AFTER SENDING WHICH ADRESS IT IS BEING SENT TO
   shiftByte(byteToSendY);
   shiftByte(byteToSendX);
-
+  
+//THIS SENDS THE PREVIOUSLY SENT DATA TO THE REGISTER IT NEEDS TO BE AT
   for(int i = 0; i < whichMax; i++)
   {
     shiftByte(0);
@@ -447,14 +428,5 @@ void sendToMax(byte byteToSendX, byte byteToSendY, int whichMax )
 }
 
 
-void columnScroll(String stringToPrint, int scrollSpeed)
-{
-  for(int i = 0; i < stringToPrint.length(); i++)
-  {
-    for(int j = 0; j < charWidth[stringToPring.charAt(i)]; j++)
-    {
-      
-    }
-  }
-}
+
 
