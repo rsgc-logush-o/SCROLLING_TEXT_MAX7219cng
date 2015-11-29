@@ -1,4 +1,7 @@
-
+// PROJECT: Scrolling Message Board
+// PURPOSE: 16-Piece LED Matrix Panel for the entranceway to the DES
+// AUTHOR:  O. Logush
+// DATE:    2015-2016
 
 //THESE ARE THE BITMAPS FOR THE CHARACTERS
 byte charToPrint[95][6]
